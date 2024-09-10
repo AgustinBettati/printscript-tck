@@ -7,9 +7,9 @@ repositories {
     mavenCentral()
     maven {
         name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/tomasalcazar/printscript")
+        url = uri("https://maven.pkg.github.com/AnaB2/printscript")
         credentials {
-            username = "tomasalcazar"
+            username = "AnaB2"
             password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
         }
     }
@@ -29,10 +29,14 @@ test {
 dependencies {
     testImplementation 'junit:junit:4.13.1'
     implementation 'org.jetbrains:annotations:24.0.1'
-    implementation 'com.github.tomasalcazar:printscript:1.0.0'
+    implementation 'printscript:token:1.0.0-SNAPSHOT'
+    implementation 'printscript:ast:1.0.0-SNAPSHOT'
+    implementation 'printscript:lexer:1.0.0-SNAPSHOT'
+    implementation 'printscript:parser:1.0.0-SNAPSHOT'
+    implementation 'printscript:interpreter:1.0.0-SNAPSHOT'
 }
 
 test {
-    environment "BEST_FOOTBALL_CLUB", "San Lorenzo"
+    environment "BEST_FOOTBALL_CLUB", "San Lorenzo" // De que barrio sos
     useJUnit()
 }
