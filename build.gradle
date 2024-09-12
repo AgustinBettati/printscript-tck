@@ -32,6 +32,7 @@ dependencies {
     implementation 'printscript:lexer:1.0.0-SNAPSHOT'
     implementation 'printscript:parser:1.0.0-SNAPSHOT'
     implementation 'printscript:interpreter:1.0.0-SNAPSHOT'
+    implementation 'printscript:linter:1.0.0-SNAPSHOT'
 }
 
 publishing {
