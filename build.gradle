@@ -1,6 +1,10 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
+
+group = 'com.github.AnaB2'
+version = '1.0.0-SNAPSHOT'
 
 repositories {
     mavenLocal()
@@ -21,22 +25,28 @@ java {
     }
 }
 
-test {
-    minHeapSize = "5m" // initial heap size
-    maxHeapSize = "7m" // maximum heap size
-}
-
 dependencies {
-    testImplementation 'junit:junit:4.13.1'
     implementation 'org.jetbrains:annotations:24.0.1'
-    implementation 'printscript:token:1.0.0-SNAPSHOT'
-    implementation 'printscript:ast:1.0.0-SNAPSHOT'
+    testImplementation 'junit:junit:4.13.1'
+    implementation 'printscript:commons:1.0.0-SNAPSHOT'
     implementation 'printscript:lexer:1.0.0-SNAPSHOT'
     implementation 'printscript:parser:1.0.0-SNAPSHOT'
     implementation 'printscript:interpreter:1.0.0-SNAPSHOT'
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
+
 test {
-    environment "BEST_FOOTBALL_CLUB", "San Lorenzo" // De que barrio sos
+    environment "BEST_FOOTBALL_CLUB", "San Lorenzo"
     useJUnit()
 }
+
