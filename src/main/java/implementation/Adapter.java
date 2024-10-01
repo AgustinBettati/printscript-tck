@@ -6,7 +6,7 @@ import linter.BrokenRule;
 import linter.Linter;
 import linter.LinterOutput;
 import linter.LinterVersion;
-import org.example.lexer.Lexer;
+import lexer.Lexer;
 import org.example.lexer.TokenMapper;
 import parser.Parser;
 import token.Token;
@@ -16,8 +16,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-
 class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
+
+    private Interpreter interpreter; // Declaración del intérprete como variable de instancia
 
     @Override
     public void execute(InputStream src, String version, PrintEmitter emitter, ErrorHandler handler, InputProvider provider) {
@@ -27,7 +28,7 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
     private void exec(InputStream src, String version, PrintEmitter emitter, ErrorHandler handler) {
         try {
             executeByLine(src, version, emitter, handler);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             handler.reportError(e.getMessage());
         }
     }
@@ -35,7 +36,14 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
     private void executeByLine(InputStream src, String version, PrintEmitter emitter, ErrorHandler handler) throws IOException {
         var tokenMapper = new TokenMapper("1.1");
         Lexer lexer = new Lexer(tokenMapper);
-        Interpreter interpreter = new Interpreter();
+
+        // Crear instancia del ListPrinter
+        ListPrinter listPrinter = new ListPrinter();
+        interpreter = new Interpreter(listPrinter); // Pasar ListPrinter al intérprete
+
+        // Crear una única instancia de PrinterAdapter
+        PrinterAdapter adapter = new PrinterAdapter(emitter);
+
         BufferedReader reader = new BufferedReader(new InputStreamReader(src));
         String line;
 
@@ -45,16 +53,33 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
             }
             List<Token> tokens = lexer.execute(line);
             List<ASTNode> ast = new Parser().execute(tokens);
-            String response = Objects.requireNonNull(interpreter.execute(ast.getFirst())).toString();
-            splitByLinesAndPrintResponse(emitter, response);
+            String response = Objects.requireNonNull(interpreter.execute(ast.get(0))).toString();
+
+            // Procesar la respuesta con el PrinterAdapter
+            splitByLinesAndPrintResponse(adapter, response);
         }
+
+        // Emitir solo el último mensaje almacenado en el ListPrinter
+        List<String> messages = listPrinter.getPrintedMessages();
+        if (!messages.isEmpty()) {
+            String lastMessage = messages.get(messages.size() - 1);  // Obtener el último mensaje
+            emitter.print(lastMessage);  // Emitir solo el último mensaje
+        }
+
+        // Limpiar mensajes después de emitir
+        listPrinter.clearMessages();
+
         reader.close();
     }
 
-    private static void splitByLinesAndPrintResponse(PrintEmitter emitter, String response) {
-        List<String> splitResponse = Arrays.stream(response.split("\n")).toList();
-        splitResponse.forEach(emitter::print);
+
+
+
+
+    private static void splitByLinesAndPrintResponse(PrinterAdapter printerAdapter, String response) {
+        printerAdapter.print(response); // Imprimir la respuesta completa de una vez
     }
+
 
     private String handleIf(String line, BufferedReader reader) throws IOException {
         StringBuilder lineBuilder = new StringBuilder(line);
@@ -83,11 +108,9 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
 
             Linter linter = new Linter(linterVersion);
 
-            // Convertir InputStream config a String
             String configContent = convertInputStreamToString(config);
             linter.readJson(configContent);
 
-            // Lógica del linter, similar a executeByLine pero aplicando reglas
             BufferedReader reader = new BufferedReader(new InputStreamReader(src));
             String line;
             Lexer lexer = new Lexer(new TokenMapper("1.1"));
@@ -96,15 +119,11 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
             while ((line = reader.readLine()) != null) {
                 List<Token> tokens = lexer.execute(line);
                 List<ASTNode> ast = parser.execute(tokens);
-
-                // Verificar las reglas
                 LinterOutput output = linter.check(ast);
                 List<BrokenRule> brokenRules = output.getBrokenRules();
 
-                if (!brokenRules.isEmpty()) {
-                    for (BrokenRule brokenRule : brokenRules) {
-                        handler.reportError(brokenRule.getRuleDescription());
-                    }
+                for (BrokenRule brokenRule : brokenRules) {
+                    handler.reportError(brokenRule.getRuleDescription());
                 }
             }
         } catch (Exception e) {
