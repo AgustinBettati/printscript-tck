@@ -2,12 +2,14 @@ package implementation;
 
 import ast.ASTNode;
 import interpreter.*;
+import interpreter.Reader;
 import linter.BrokenRule;
 import linter.Linter;
 import linter.LinterOutput;
 import linter.LinterVersion;
 import lexer.Lexer;
 import org.example.lexer.TokenMapper;
+import org.jetbrains.annotations.NotNull;
 import parser.Parser;
 import token.Token;
 
@@ -22,25 +24,32 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
 
     @Override
     public void execute(InputStream src, String version, PrintEmitter emitter, ErrorHandler handler, InputProvider provider) {
-        exec(src, version, emitter, handler);
+        exec(src, version, emitter, handler, provider);
     }
 
-    private void exec(InputStream src, String version, PrintEmitter emitter, ErrorHandler handler) {
+    private void exec(InputStream src, String version, PrintEmitter emitter, ErrorHandler handler, InputProvider provider) {
         try {
-            executeByLine(src, version, emitter, handler);
+            executeByLine(src, version, emitter, handler, provider);
         } catch (Throwable e) {
             handler.reportError(e.getMessage());
         }
     }
 
 
-    private void executeByLine(InputStream src, String version, PrintEmitter emitter, ErrorHandler handler) throws IOException {
+    private void executeByLine(InputStream src, String version, PrintEmitter emitter, ErrorHandler handler, InputProvider provider) throws IOException {
+         Reader inputReader = new Reader() {
+            @Override
+            public @NotNull String input(@NotNull String s) {
+                return provider.input(s);
+            }
+        };
+
         var tokenMapper = new TokenMapper(version);
         Lexer lexer = new Lexer(tokenMapper);
 
         // Crear instancia del ListPrinter
         ListPrinter listPrinter = new ListPrinter();
-        interpreter = new Interpreter(listPrinter); // Pasar ListPrinter al intérprete
+        interpreter = new Interpreter(listPrinter, inputReader); // Pasar ListPrinter al intérprete
 
         // Crear una única instancia de PrinterAdapter
         PrinterAdapter adapter = new PrinterAdapter(emitter);
