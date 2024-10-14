@@ -14,10 +14,8 @@ import parser.Parser;
 import token.Token;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+
 
 class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
 
@@ -167,4 +165,6 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
             return sb.toString();
         }
     }
+
+    //test changes
 }
