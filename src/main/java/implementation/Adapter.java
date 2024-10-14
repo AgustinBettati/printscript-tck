@@ -45,11 +45,11 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
         };
 
         var tokenMapper = new TokenMapper(version);
-        Lexer lexer = new Lexer(tokenMapper);
 
         // Crear instancia del ListPrinter
-        ListPrinter listPrinter = new ListPrinter();
-        interpreter = new Interpreter(listPrinter, inputReader); // Pasar ListPrinter al intérprete
+        // ListPrinter listPrinter = new ListPrinter();
+        Printer adaptedEmitter = new EmitterPrinter(emitter);
+        interpreter = new Interpreter(adaptedEmitter, inputReader); // Pasar ListPrinter al intérprete
 
         // Crear una única instancia de PrinterAdapter
         PrinterAdapter adapter = new PrinterAdapter(emitter);
@@ -62,16 +62,17 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
             statement = line;
             if(statement.contains("if")) statement = handleIf(statement, reader);
 
-            List<Token> tokens = lexer.execute(statement);
+            List<Token> tokens = new Lexer(tokenMapper).execute(statement);
             List<ASTNode> ast = new Parser().execute(tokens);
 
             Object result = interpreter.execute(ast.get(0));
             if (result != null) {
                 String response = result.toString();
                 // Procesar la respuesta con el PrinterAdapter
-                splitByLinesAndPrintResponse(adapter, response);
+                // splitByLinesAndPrintResponse(adapter, response);
             }
         }
+        /*
         // Emitir todos los mensajes acumulados en ListPrinter
         List<String> messages = listPrinter.getPrintedMessages();
         if (!messages.isEmpty()) {
@@ -82,6 +83,8 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
 
         // Limpiar mensajes después de emitir
         listPrinter.clearMessages();
+
+         */
 
         reader.close();
     }
