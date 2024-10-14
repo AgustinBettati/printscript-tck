@@ -14,6 +14,7 @@ import parser.Parser;
 import token.Token;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +36,6 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
         }
     }
 
-
     private void executeByLine(InputStream src, String version, PrintEmitter emitter, ErrorHandler handler, InputProvider provider) throws IOException {
          Reader inputReader = new Reader() {
             @Override
@@ -56,42 +56,22 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(src));
         String line;
+        String statement = "";
 
         while ((line = reader.readLine()) != null) {
-            StringBuilder statementBuilder = new StringBuilder();  // Acumulador para declaraciones
+            statement = line;
+            if(statement.contains("if")) statement = handleIf(statement, reader);
 
-            // Separar declaraciones en la línea actual
-            String[] statements = line.split(";");
+            List<Token> tokens = lexer.execute(statement);
+            List<ASTNode> ast = new Parser().execute(tokens);
 
-            for (String statement : statements) {
-                statement = statement.trim();  // Limpiar la declaración
-
-                // Si es un bloque if, procesarlo
-                if (statement.contains("if")) {
-                    statement = handleIf(statement, reader);  // Manejar bloques if-else
-                }
-
-                if (!statement.isEmpty()) {
-                    statementBuilder.append(statement).append(";");
-
-                    // Procesar la declaración si está completa
-                    List<Token> tokens = lexer.execute(statementBuilder.toString().trim());
-                    List<ASTNode> ast = new Parser().execute(tokens);
-
-                    // Ejecutar la declaración y capturar la respuesta
-                    Object result = interpreter.execute(ast.get(0));
-                    if (result != null) {
-                        String response = result.toString();
-                        // Procesar la respuesta con el PrinterAdapter
-                        splitByLinesAndPrintResponse(adapter, response);
-                    }
-
-                    // Limpiar el acumulador después de procesar la declaración
-                    statementBuilder.setLength(0);
-                }
+            Object result = interpreter.execute(ast.get(0));
+            if (result != null) {
+                String response = result.toString();
+                // Procesar la respuesta con el PrinterAdapter
+                splitByLinesAndPrintResponse(adapter, response);
             }
         }
-
         // Emitir todos los mensajes acumulados en ListPrinter
         List<String> messages = listPrinter.getPrintedMessages();
         if (!messages.isEmpty()) {
@@ -106,36 +86,23 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
         reader.close();
     }
 
-    private String handleIf(String line, BufferedReader reader) throws IOException {
-        StringBuilder lineBuilder = new StringBuilder(line);
-
-        // Leer líneas adicionales hasta que se cierre el bloque de "if"
-        while (!lineBuilder.toString().contains("}")) {
-            String nextLine = reader.readLine();
-            if (nextLine == null) {
-                break;  // Salir si no hay más líneas
-            }
-            lineBuilder.append(nextLine);
-        }
-
-        // Manejo del "else"
-        reader.mark(1000);  // Marcar la posición para retroceder en caso de no encontrar "else"
-        String nextLine = reader.readLine();
-
-        if (nextLine != null && nextLine.contains("else")) {
-            lineBuilder.append(nextLine);
-            while (!nextLine.contains("}")) {
-                nextLine = reader.readLine();
-                if (nextLine == null) {
-                    break;  // Salir si no hay más líneas
+    private String handleIf(String statement, BufferedReader reader) throws IOException {
+        StringBuilder result = new StringBuilder(statement);
+        Integer llaves = 1;
+        String line;
+        while (llaves>0){
+            if((line=reader.readLine())!=null){
+                for (char ch: line.toCharArray()){
+                    if (ch=='{'){
+                        llaves++;
+                    } else if (ch=='}'){
+                        llaves--;
+                    }
                 }
-                lineBuilder.append(nextLine);
+                result.append(line);
             }
-        } else {
-            reader.reset();  // Retroceder si no hay "else"
         }
-
-        return lineBuilder.toString();
+        return result.toString();
     }
 
 
