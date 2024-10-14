@@ -33,8 +33,9 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
         }
     }
 
+
     private void executeByLine(InputStream src, String version, PrintEmitter emitter, ErrorHandler handler) throws IOException {
-        var tokenMapper = new TokenMapper("1.1");
+        var tokenMapper = new TokenMapper(version);
         Lexer lexer = new Lexer(tokenMapper);
 
         // Crear instancia del ListPrinter
@@ -48,22 +49,46 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
         String line;
 
         while ((line = reader.readLine()) != null) {
-            if (line.contains("if")) {
-                line = handleIf(line, reader);
-            }
-            List<Token> tokens = lexer.execute(line);
-            List<ASTNode> ast = new Parser().execute(tokens);
-            String response = Objects.requireNonNull(interpreter.execute(ast.get(0))).toString();
+            StringBuilder statementBuilder = new StringBuilder();  // Acumulador para declaraciones
 
-            // Procesar la respuesta con el PrinterAdapter
-            splitByLinesAndPrintResponse(adapter, response);
+            // Separar declaraciones en la línea actual
+            String[] statements = line.split(";");
+
+            for (String statement : statements) {
+                statement = statement.trim();  // Limpiar la declaración
+
+                // Si es un bloque if, procesarlo
+                if (statement.contains("if")) {
+                    statement = handleIf(statement, reader);  // Manejar bloques if-else
+                }
+
+                if (!statement.isEmpty()) {
+                    statementBuilder.append(statement).append(";");
+
+                    // Procesar la declaración si está completa
+                    List<Token> tokens = lexer.execute(statementBuilder.toString().trim());
+                    List<ASTNode> ast = new Parser().execute(tokens);
+
+                    // Ejecutar la declaración y capturar la respuesta
+                    Object result = interpreter.execute(ast.get(0));
+                    if (result != null) {
+                        String response = result.toString();
+                        // Procesar la respuesta con el PrinterAdapter
+                        splitByLinesAndPrintResponse(adapter, response);
+                    }
+
+                    // Limpiar el acumulador después de procesar la declaración
+                    statementBuilder.setLength(0);
+                }
+            }
         }
 
-        // Emitir solo el último mensaje almacenado en el ListPrinter
+        // Emitir todos los mensajes acumulados en ListPrinter
         List<String> messages = listPrinter.getPrintedMessages();
         if (!messages.isEmpty()) {
-            String lastMessage = messages.get(messages.size() - 1);  // Obtener el último mensaje
-            emitter.print(lastMessage);  // Emitir solo el último mensaje
+            for (String message : messages) {
+                emitter.print(message);  // Emitir cada mensaje almacenado
+            }
         }
 
         // Limpiar mensajes después de emitir
@@ -72,30 +97,52 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
         reader.close();
     }
 
+    private String handleIf(String line, BufferedReader reader) throws IOException {
+        StringBuilder lineBuilder = new StringBuilder(line);
+
+        // Leer líneas adicionales hasta que se cierre el bloque de "if"
+        while (!lineBuilder.toString().contains("}")) {
+            String nextLine = reader.readLine();
+            if (nextLine == null) {
+                break;  // Salir si no hay más líneas
+            }
+            lineBuilder.append(nextLine);
+        }
+
+        // Manejo del "else"
+        reader.mark(1000);  // Marcar la posición para retroceder en caso de no encontrar "else"
+        String nextLine = reader.readLine();
+
+        if (nextLine != null && nextLine.contains("else")) {
+            lineBuilder.append(nextLine);
+            while (!nextLine.contains("}")) {
+                nextLine = reader.readLine();
+                if (nextLine == null) {
+                    break;  // Salir si no hay más líneas
+                }
+                lineBuilder.append(nextLine);
+            }
+        } else {
+            reader.reset();  // Retroceder si no hay "else"
+        }
+
+        return lineBuilder.toString();
+    }
+
 
 
 
 
     private static void splitByLinesAndPrintResponse(PrinterAdapter printerAdapter, String response) {
-        printerAdapter.print(response); // Imprimir la respuesta completa de una vez
-    }
-
-
-    private String handleIf(String line, BufferedReader reader) throws IOException {
-        StringBuilder lineBuilder = new StringBuilder(line);
-        while (!lineBuilder.toString().contains("}")) {
-            lineBuilder.append(reader.readLine());
-        }
-        line = lineBuilder.toString();
-        StringBuilder newLine = new StringBuilder(reader.readLine());
-
-        if (newLine.toString().contains("else")) {
-            while (!newLine.toString().contains("}")) {
-                newLine.append(reader.readLine());
+        String[] lines = response.split("\n");  // Dividir en líneas
+        for (String line : lines) {
+            if (!line.trim().isEmpty()) {
+                printerAdapter.print(line);  // Imprimir cada línea
             }
         }
-        return line + " " + newLine;
     }
+
+
 
     // Implementación de PrintScriptLinter
     @Override
