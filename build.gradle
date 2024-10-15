@@ -1,37 +1,59 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
+
+group = 'com.github.AnaB2'
+version = '1.0.0-SNAPSHOT'
 
 repositories {
     mavenLocal()
     mavenCentral()
-// TODO: uncomment to be able to fetch packages in your own repository
-//    maven {
-//        name = "GitHubPackages"
-//        url = uri("https://maven.pkg.github.com/<your-username>/printscript")
-//        credentials {
-//            username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-//            password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
-//        }
-//    }
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/AnaB2/printscript")
+        credentials {
+            username =  System.getenv("USERNAME")
+            password = System.getenv("TOKEN")
+        }
+    }
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
 test {
-    minHeapSize = "5m" // initial heap size
-    maxHeapSize = "7m" // maximum heap size
+    minHeapSize = "4m"
+    maxHeapSize = "7m"
 }
 
 dependencies {
+    implementation 'org.jetbrains:annotations:24.0.1'
     testImplementation 'junit:junit:4.13.1'
+    implementation 'printscript:commons:1.0.0-SNAPSHOT'
+    implementation 'printscript:lexer:1.0.0-SNAPSHOT'
+    implementation 'printscript:parser:1.0.0-SNAPSHOT'
+    implementation 'printscript:interpreter:1.0.0-SNAPSHOT'
+    implementation 'printscript:linter:1.0.0-SNAPSHOT'
+
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
 }
 
 test {
     environment "BEST_FOOTBALL_CLUB", "San Lorenzo"
     useJUnit()
 }
+

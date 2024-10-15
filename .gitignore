@@ -1,4 +1,3 @@
-
 # Created by https://www.toptal.com/developers/gitignore/api/gradle,intellij,java
 # Edit at https://www.toptal.com/developers/gitignore?templates=gradle,intellij,java
 
@@ -8,6 +7,7 @@
 
 .idea
 *.iml
+gradle.properties
 
 # Gradle and Maven with auto-import
 # When using Gradle or Maven with auto-import, you should exclude module files,
@@ -136,3 +136,8 @@ gradle-app.setting
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# Ignore gradle properties file
+gradle.properties
+gradle.properties
+gradle.properties

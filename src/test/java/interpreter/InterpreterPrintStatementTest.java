@@ -34,20 +34,22 @@ public class InterpreterPrintStatementTest {
     @Parameterized.Parameters(name = "version {0} - {1})")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {"1.0", "arithmetic-operations"},
-                {"1.0", "arithmetic-operations-decimal"},
-                {"1.0", "simple-declare-assign"},
-                {"1.0", "string-and-number-concat"},
-                {"1.1", "arithmetic-operations"},
-                {"1.1", "arithmetic-operations-decimal"},
-                {"1.1", "simple-declare-assign"},
-                {"1.1", "string-and-number-concat"},
-                {"1.1", "if-statement-true"},
-                {"1.1", "if-statement-false"},
-                {"1.1", "else-statement-true"},
-                {"1.1", "else-statement-false"},
-                {"1.1", "read-input"},
-                {"1.1", "read-env"}
+
+            {"1.0", "arithmetic-operations"},
+            {"1.0", "arithmetic-operations-decimal"},
+            {"1.0", "simple-declare-assign"},
+            {"1.0", "string-and-number-concat"},
+            {"1.1", "arithmetic-operations"},
+            {"1.1", "arithmetic-operations-decimal"},
+            {"1.1", "simple-declare-assign"},
+            {"1.1", "string-and-number-concat"},
+            {"1.1", "if-statement-true"},
+            {"1.1", "if-statement-false"},
+            {"1.1", "else-statement-true"},
+            {"1.1", "else-statement-false"},
+            {"1.1", "read-input"},
+            {"1.1", "read-env"}
+
         });
     }
 
