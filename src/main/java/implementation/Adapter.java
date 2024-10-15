@@ -70,19 +70,6 @@ class Adapter implements PrintScriptInterpreter, PrintScriptLinter {
                 // splitByLinesAndPrintResponse(adapter, response);
             }
         }
-        /*
-        // Emitir todos los mensajes acumulados en ListPrinter
-        List<String> messages = listPrinter.getPrintedMessages();
-        if (!messages.isEmpty()) {
-            for (String message : messages) {
-                emitter.print(message);  // Emitir cada mensaje almacenado
-            }
-        }
-
-        // Limpiar mensajes después de emitir
-        listPrinter.clearMessages();
-
-         */
 
         reader.close();
     }
