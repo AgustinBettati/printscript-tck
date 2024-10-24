@@ -1,7 +1,7 @@
 package implementation;
-import interpreter.PrintScriptFormatter;
+import formatter.PrintScriptFormatter;
 import interpreter.PrintScriptInterpreter;
-import interpreter.PrintScriptLinter;
+import linter.PrintScriptLinter;
 
 public interface PrintScriptFactory {
     PrintScriptInterpreter interpreter();

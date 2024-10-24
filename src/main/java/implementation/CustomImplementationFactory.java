@@ -1,21 +1,16 @@
 package implementation;
 
-import interpreter.PrintScriptFormatter;
+import formatter.PrintScriptFormatter;
+import interpreter.InterpreterAdapter;
 import interpreter.PrintScriptInterpreter;
-import interpreter.PrintScriptLinter;
-
-import java.io.BufferedInputStream;
-import java.util.Arrays;
+import linter.LinterAdapter;
+import linter.PrintScriptLinter;
 
 public class CustomImplementationFactory implements PrintScriptFactory {
 
     @Override
     public PrintScriptInterpreter interpreter() {
-        // your PrintScript implementation should be returned here.
-        // make sure to ADAPT your implementation to PrintScriptInterpreter interface.
-        throw new NotImplementedException("Needs implementation"); // TODO: implement
-
-        // Dummy impl: return (src, version, emitter, handler) -> { };
+        return new InterpreterAdapter();
     }
 
     @Override
@@ -29,8 +24,6 @@ public class CustomImplementationFactory implements PrintScriptFactory {
 
     @Override
     public PrintScriptLinter linter() {
-        // your PrintScript linter should be returned here.
-        // make sure to ADAPT your linter to PrintScriptLinter interface.
-        throw new NotImplementedException("Needs implementation"); // TODO: implement
+        return new LinterAdapter();
     }
 }

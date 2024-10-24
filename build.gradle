@@ -5,20 +5,19 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
-// TODO: uncomment to be able to fetch packages in your own repository
-//    maven {
-//        name = "GitHubPackages"
-//        url = uri("https://maven.pkg.github.com/<your-username>/printscript")
-//        credentials {
-//            username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-//            password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
-//        }
-//    }
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/Agustin5421/PrintScript")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+        }
+    }
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -29,6 +28,15 @@ test {
 
 dependencies {
     testImplementation 'junit:junit:4.13.1'
+    implementation 'com.google.code.gson:gson:2.8.9'
+    def version = '1.1.41'
+    implementation 'com.ingsis:lexer:' + version
+    implementation 'com.ingsis:parser:' + version
+    implementation 'com.ingsis:interpreter:' + version
+    implementation 'com.ingsis:formatter:' + version
+    implementation 'com.ingsis:linter:' + version
+    implementation 'com.ingsis:runner:' + version
+    implementation 'com.ingsis:utils:' + version
 }
 
 test {
