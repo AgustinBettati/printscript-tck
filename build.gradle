@@ -29,7 +29,7 @@ test {
 dependencies {
     testImplementation 'junit:junit:4.13.1'
     implementation 'com.google.code.gson:gson:2.8.9'
-    def version = '1.1.40'
+    def version = '1.1.41'
     implementation 'com.ingsis:lexer:' + version
     implementation 'com.ingsis:parser:' + version
     implementation 'com.ingsis:interpreter:' + version
