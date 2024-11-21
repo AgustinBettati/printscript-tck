@@ -7,6 +7,7 @@ import util.MockInputStream;
 import util.PrintCollector;
 import util.PrintCounter;
 
+import java.util.List;
 import java.util.Objects;
 
 import static java.util.Collections.emptyList;
@@ -18,7 +19,7 @@ public class InterpreterLargeFileTest {
 
     private static final String MESSAGE = "This is a text";
     private static final String LINE = "println(\"" + MESSAGE + "\");\n";
-    private static final int NUMBER_OF_LINES = 32 * 1024;
+    private static final int NUMBER_OF_LINES = 56 * 1024;
     private final PrintScriptInterpreter interpreter = new CustomImplementationFactory().interpreter();
 
     @Test
@@ -38,6 +39,7 @@ public class InterpreterLargeFileTest {
         final var inputStream = new MockInputStream(LINE, NUMBER_OF_LINES);
         interpreter.execute(inputStream, "1.0", printCollector, errorCollector, (ignored) -> "");
 
-        assertThat(errorCollector.getErrors(), is(singletonList("Java heap space")));
+        List<String> errors = errorCollector.getErrors();
+        assertThat(errors, is(singletonList("Java heap space")));
     }
 }
