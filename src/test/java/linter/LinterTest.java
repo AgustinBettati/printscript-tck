@@ -24,9 +24,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static util.SuiteOps.*;
 
-@RunWith(Parameterized.class)
+/*@RunWith(Parameterized.class)
 public class LinterTest {
-/*
+
     private static final String basePath = "src/test/resources/linter/";
     private final PrintScriptLinter linter = new CustomImplementationFactory().linter();
 
@@ -80,5 +80,6 @@ public class LinterTest {
         return shouldBeValid ? is(Collections.emptyList()) : not(Collections.emptyList());
     }
 
- */
+
 }
+ */
