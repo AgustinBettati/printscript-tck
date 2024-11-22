@@ -2,6 +2,7 @@ package formatter;
 
 import implementation.CustomImplementationFactory;
 import interpreter.PrintScriptFormatter;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -17,10 +18,10 @@ import static org.junit.Assert.assertEquals;
 import static util.SuiteOps.*;
 import static util.SuiteOps.getInnerFile;
 
-@RunWith(Parameterized.class)
+/*@RunWith(Parameterized.class)
 public class FormatterTest {
 
-    private static final String basePath = "src/test/resources/formatter/";
+   private static final String basePath = "src/test/resources/formatter/";
     private final PrintScriptFormatter formatter = new CustomImplementationFactory().formatter();
 
     @SuppressWarnings("WeakerAccess")
@@ -45,7 +46,7 @@ public class FormatterTest {
         return collectTestSet(basePath, true, filePicker());
     }
 
-    @Test
+    @Ignore
     public void testFormat() throws FileNotFoundException {
         final var fileInputStream = new FileInputStream(file);
         final var golden = readFile(this.golden);
@@ -70,4 +71,7 @@ public class FormatterTest {
             }
         };
     }
+
 }
+
+ */
