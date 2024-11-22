@@ -29,11 +29,11 @@ test {
 
 dependencies {
     testImplementation 'junit:junit:4.13.1'
-    implementation 'printscript:interpreter:2.1.3'
-    implementation 'printscript:parser:2.1.3'
-    implementation 'printscript:ast:2.1.3'
-    implementation 'printscript:lexer:2.1.3'
-    implementation 'printscript:token:2.1.3'
+    implementation 'printscript:interpreter:2.1.5'
+    implementation 'printscript:parser:2.1.5'
+    implementation 'printscript:ast:2.1.5'
+    implementation 'printscript:lexer:2.1.5'
+    implementation 'printscript:token:2.1.5'
 }
 
 test {
